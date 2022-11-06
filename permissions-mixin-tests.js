@@ -28,7 +28,7 @@ const allowAdminMethod = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['admin'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -43,7 +43,7 @@ const allowBasicMethod = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['basic', 'admin'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -58,11 +58,11 @@ const allowBasicIfBlah = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['basic'],
-        group: Roles.GLOBAL_GROUP,
+        group: true,
         allow({text}) { return (text === 'blah'); }
     }, {
         roles: ['admin'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -77,7 +77,7 @@ const allowFancyMethod = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['fancy', 'admin'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -103,7 +103,7 @@ const nestedAllowAdminMethod = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['fancy', 'admin', 'basic'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -130,7 +130,7 @@ const denyBasicMethod = new ValidatedMethod({
     mixins: [PermissionsMixin],
     deny: [{
         roles: ['basic'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -145,11 +145,11 @@ const denyBasicIfBlahAndFancy = new ValidatedMethod({
     mixins: [PermissionsMixin],
     deny: [{
         roles: ['basic'],
-        group: Roles.GLOBAL_GROUP,
+        group: true,
         deny({text}) { return (text === 'blah'); }
     }, {
         roles: ['fancy'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -201,7 +201,7 @@ Meteor.methods({
                 });
 
                 if (roles) {
-                    Roles.addUsersToRoles(userId, roles, Roles.GLOBAL_GROUP);
+                    Roles.addUsersToRoles(userId, roles);
                 }
             });
         }
@@ -310,7 +310,7 @@ describe('Bad definitions', () => {
                 name: 'testMethod3',
                 mixins: [PermissionsMixin],
                 allow: [{
-                    group: Roles.GLOBAL_GROUP
+                    group: true
                 }],
                 validate: new SimpleSchema({
                     text: { type: String }
@@ -328,7 +328,7 @@ describe('Bad definitions', () => {
                 name: 'testMethod4',
                 mixins: [PermissionsMixin],
                 deny: [{
-                    group: Roles.GLOBAL_GROUP
+                    group: true
                 }],
                 validate: new SimpleSchema({
                     text: { type: String }

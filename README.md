@@ -1,11 +1,13 @@
-# didericis:permissions-mixin [![Circle CI](https://circleci.com/gh/Didericis/permissions-mixin.svg?style=svg)](https://circleci.com/gh/Didericis/permissions-mixin)
+# badslug:permissions-mixin
+
+> This is a fork of [didericis:permissions-mixin](https://github.com/Didericis/permissions-mixin) that has been updated for alanning:roles version 3
 
 This is a mixin for meteor's [mdg:validated-method](https://github.com/meteor/validated-method). It uses the [alanning:roles](https://github.com/alanning/meteor-roles) package and allows you to define what users with what roles are allowed or denied use of your method, and under what conditions. 
 
 ## Install
 
 ```sh
-$ meteor add didericis:permissions-mixin
+$ meteor add badslug:permissions-mixin
 ```
 
 ## Define
@@ -60,11 +62,11 @@ const allowBasicIfBlah = new ValidatedMethod({
     mixins: [PermissionsMixin],
     allow: [{
         roles: ['basic'],
-        group: Roles.GLOBAL_GROUP,
+        group: true,
         allow({text}) { return (text === 'blah'); }
     }, {
         roles: ['admin'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -77,8 +79,8 @@ const allowBasicIfBlah = new ValidatedMethod({
 
 This will allow:
 
-* A user of role `basic` and group `Roles.GLOBAL_GROUP` when the input is {text: `blah`}
-* A user of role `admin` and group `Roles.GLOBAL_GROUP` for all inputs
+* A user of role `basic` and group `true` when the input is {text: `blah`}
+* A user of role `admin` and group `true` for all inputs
 
 All other users will be denied.
 
@@ -110,11 +112,11 @@ const denyBasicIfBlahAndFancy = new ValidatedMethod({
     mixins: [PermissionsMixin],
     deny: [{
         roles: ['basic'],
-        group: Roles.GLOBAL_GROUP,
+        group: true,
         deny({text}) { return (text === 'blah'); }
     }, {
         roles: ['fancy'],
-        group: Roles.GLOBAL_GROUP
+        group: true
     }],
     validate: new SimpleSchema({
         text: { type: String }
@@ -128,8 +130,8 @@ const denyBasicIfBlahAndFancy = new ValidatedMethod({
 
 This will deny:
 
-* A user of role `basic` and group `Roles.GLOBAL_GROUP` when the input is {text: `blah`}
-* A user of role `fancy` and group `Roles.GLOBAL_GROUP` for all inputs
+* A user of role `basic` and group `true` when the input is {text: `blah`}
+* A user of role `fancy` and group `true` for all inputs
 
 All other users will be allowed
 

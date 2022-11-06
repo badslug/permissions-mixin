@@ -1,6 +1,6 @@
 /* global PermissionsMixin:true, Roles */
 PermissionsMixin = function (methodOptions) {
-  const DEFINITION_ERROR = 'PermssionsMixin.Definition';
+  const DEFINITION_ERROR = 'PermissionsMixin.Definition';
 
   const checkMethodOption = function checkMethodOption(
     methodOptions,
@@ -21,7 +21,7 @@ PermissionsMixin = function (methodOptions) {
           try {
             check(permitDoc, {
               roles: Match.OneOf([String], String, Boolean),
-              scope: Match.OneOf([String], String, Boolean, Function, null),
+              group: Match.OneOf([String], String, Boolean, Function, null),
               [methodOptionName]: Match.Optional(Function),
             });
           } catch (e) {
@@ -32,72 +32,71 @@ PermissionsMixin = function (methodOptions) {
     }
   };
 
-  const isInRole = function isInRole({ userId, roles, scole }) {
-    var allUserScopes = Roles.getScopesForUser(userId);
-
+  const isInRole = function isInRole({ userId, roles, group }) {
+    const allUserScopes = Roles.getScopesForUser(userId, group)
     // Any logged in user
-    if (roles === true && scole === true) {
+    if (roles === true && group === true) {
       return !!userId;
     }
 
-    // A user with any role in a particular scope
-    if (roles === true && typeof scole === 'string') {
-      return Roles.getRolesForUser(userId, scole).length > 0;
+    // A user with any role in a particular group
+    if (roles === true && typeof group === 'string') {
+      return Roles.getRolesForUser(userId, group).length > 0;
     }
 
-    // A user with any role in a particular arry of scopes
-    if (roles === true && Array.isArray(scole)) {
-      var isInAnyRoleInScopeArray = Roles.getRolesForUser(userId).length > 0;
-      scole.forEach(function (_scope) {
+    // A user with any role in a particular array of groups
+    if (roles === true && Array.isArray(group)) {
+      let isInAnyRoleInScopeArray = Roles.getRolesForUser(userId).length > 0;
+      group.forEach(function (_group) {
         isInAnyRoleInScopeArray =
-          Roles.getRolesForUser(userId, _scope).length > 0;
+          Roles.getRolesForUser(userId, _group).length > 0;
       });
       return isInAnyRoleInScopeArray;
     }
 
-    // A user with a particular role in any scope
-    if (typeof roles === 'string' && scole === true) {
-      var isInRoleInAnyScope = Roles.userIsInRole(userId, roles);
-      allUserScopes.forEach(function (_scope) {
-        isInRoleInAnyScope = Roles.userIsInRole(userId, roles, _scope);
+    // A user with a particular role in any group
+    if (typeof roles === 'string' && group === true) {
+      let isInRoleInAnyScope = Roles.userIsInRole(userId, roles);
+      allUserScopes.forEach(function (_group) {
+        isInRoleInAnyScope = Roles.userIsInRole(userId, roles, _group);
       });
       return isInRoleInAnyScope;
     }
 
-    // A user with a particular role in a particular scope
-    if (typeof roles === 'string' && typeof scole === 'string') {
-      return Roles.userIsInRole(userId, roles, scole);
+    // A user with a particular role in a particular group
+    if (typeof roles === 'string' && typeof group === 'string') {
+      return Roles.userIsInRole(userId, roles, group);
     }
 
-    // A user with a particular role in a particular arry of scopes
-    if (typeof roles === 'string' && Array.isArray(scole)) {
-      var isInRoleInScopeArray = Roles.userIsInRole(userId, roles);
-      scole.forEach(function (_scope) {
-        isInRoleInScopeArray = Roles.userIsInRole(userId, roles, _scope);
+    // A user with a particular role in a particular array of groups
+    if (typeof roles === 'string' && Array.isArray(group)) {
+      let isInRoleInScopeArray = Roles.userIsInRole(userId, roles);
+      group.forEach(function (_group) {
+        isInRoleInScopeArray = Roles.userIsInRole(userId, roles, _group);
       });
       return isInRoleInScopeArray;
     }
 
-    // A user in a particular array of roles in any scope
-    if (Array.isArray(roles) && scole === true) {
-      var isInRoleArrayInAnyScope = Roles.userIsInRole(userId, roles);
-      allUserScopes.forEach(function (_scope) {
-        isInRoleArrayInAnyScope = Roles.userIsInRole(userId, roles, _scope);
+    // A user in a particular array of roles in any group
+    if (Array.isArray(roles) && group === true) {
+      let isInRoleArrayInAnyScope = Roles.userIsInRole(userId, roles);
+      allUserScopes.forEach(function (_group) {
+        isInRoleArrayInAnyScope = Roles.userIsInRole(userId, roles, _group);
       });
       return isInRoleArrayInAnyScope;
     }
 
-    // A user in a particular array of roles in a particular scope
-    if (Array.isArray(roles) && typeof scole === 'string') {
-      return Roles.userIsInRole(userId, roles, scole);
+    // A user in a particular array of roles in a particular group
+    if (Array.isArray(roles) && typeof group === 'string') {
+      return Roles.userIsInRole(userId, roles, group);
     }
 
     // A user in a particular array of roles in a particular array of
-    // scopes
-    if (Array.isArray(roles) && Array.isArray(scole)) {
-      var isInRoleArrayInScopeArray = Roles.userIsInRole(userId, roles);
-      scole.forEach(function (_scope) {
-        isInRoleArrayInScopeArray = Roles.userIsInRole(userId, roles, _scope);
+    // groups
+    if (Array.isArray(roles) && Array.isArray(group)) {
+      let isInRoleArrayInScopeArray = Roles.userIsInRole(userId, roles);
+      group.forEach(function (_group) {
+        isInRoleArrayInScopeArray = Roles.userIsInRole(userId, roles, _group);
       });
       return isInRoleArrayInScopeArray;
     }
@@ -105,15 +104,15 @@ PermissionsMixin = function (methodOptions) {
 
   const isRole = function isRole(option, roleDoc, userId, args) {
     const { roles } = roleDoc;
-    let { scope } = roleDoc;
+    let { group } = roleDoc;
     const func = roleDoc[option];
 
-    if (typeof scope === 'function') {
-      scope = scope.apply({ userId: userId }, args);
+    if (typeof group === 'function') {
+      group = group.apply({ userId: userId }, args);
     }
 
     // Check to see if this role doc applies to this user
-    if (isInRole({ userId, roles, scope })) {
+    if (isInRole({ userId, roles, group })) {
       // Check to see if user is allowed/denied
       if (func) {
         return roleDoc[option].apply({ userId: userId }, args);
@@ -127,7 +126,7 @@ PermissionsMixin = function (methodOptions) {
     if (!deny) return true;
     if (!userId) return true;
 
-    for (var i = 0; i < methodOptions.deny.length; i++) {
+    for (let i = 0; i < methodOptions.deny.length; i++) {
       if (isRole('deny', methodOptions.deny[i], userId, args) === true) {
         throw new Meteor.Error(
           methodOptions.permissionsError.name,
@@ -144,7 +143,7 @@ PermissionsMixin = function (methodOptions) {
     if (allow === true) {
       return true;
     } else if (Array.isArray(allow)) {
-      for (var i = 0; i < allow.length; i++) {
+      for (let i = 0; i < allow.length; i++) {
         if (isRole('allow', allow[i], userId, args) === true) {
           return true;
         }
@@ -206,6 +205,6 @@ PermissionsMixin = function (methodOptions) {
 PermissionsMixin.LoggedIn = [
   {
     roles: true,
-    scope: true,
+    group: true,
   },
 ];
